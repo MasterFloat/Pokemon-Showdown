@@ -975,21 +975,6 @@ body {
       border:none;
   }
 
-  /**************************
-  * Hydrocity Roomintro CSS *
-  **************************/
-
-  .hydro-txt {
-    color: #4DAFF0;
-    font-weight: bold;
-    font-size: 13pt;
-    text-shadow: 1px 1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, -1px -1px 0px #000;
-  }
-
-  /*******************************
-  * Hydrocity Roomintro CSS ~end *
-  *******************************/
-
   /************************
   * Lobby Roomintro (New) *
   ************************/
