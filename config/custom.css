@@ -1061,6 +1061,22 @@ body {
       color: #367A78;
       text-decoration: underline;
   }
+  
+  /* Void League Roomintro CSS */
+  
+  .void-darkrai {
+    background: #595757 url("http://i.imgur.com/OdDCOnT.png?1") right center no-repeat;
+  }
+
+  .void-yveltal {
+    background: #343634 url("http://i.imgur.com/GDbJNWr.png?1") center no-repeat;
+  }
+
+  .void-darkrai-darker {
+    background: #1A1A1A url("http://i.imgur.com/CvOxG2g.jpg?1") left center no-repeat;
+  }
+  
+  /* Void League Roomintro CSS ~end */
 
 
   /***************************
