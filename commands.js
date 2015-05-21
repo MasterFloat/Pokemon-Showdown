@@ -1686,7 +1686,7 @@ var commands = exports.commands = {
 
 	'memusage': 'memoryusage',
 	memoryusage: function (target) {
-		if (!this.can('hotpatch')) return false;
+		if (!user.hasConsoleAccess(connection)) return false;
 		target = toId(target) || 'all';
 		if (target === 'all') {
 			this.sendReply("Loading memory usage, this might take a while.");
@@ -1749,7 +1749,7 @@ var commands = exports.commands = {
 	},
 
 	bash: function (target, room, user, connection) {
-		if (user.hasConsoleAccess(connection)) {
+		if (!user.hasConsoleAccess(connection)) {
 			return this.sendReply("/bash - Access denied.");
 		}
 
@@ -1760,7 +1760,7 @@ var commands = exports.commands = {
 	},
 
 	eval: function (target, room, user, connection) {
-		if (user.hasConsoleAccess(connection)) {
+		if (!user.hasConsoleAccess(connection)) {
 			return this.sendReply("/eval - Access denied.");
 		}
 		if (!this.canBroadcast()) return;
@@ -1778,7 +1778,7 @@ var commands = exports.commands = {
 	},
 
 	evalbattle: function (target, room, user, connection) {
-		if (user.hasConsoleAccess(connection)) {
+		if (!user.hasConsoleAccess(connection)) {
 			return this.sendReply("/evalbattle - Access denied.");
 		}
 		if (!this.canBroadcast()) return;
