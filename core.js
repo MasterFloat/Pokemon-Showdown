@@ -64,11 +64,109 @@ var core = exports.core = {
         }
     },
  
+    lstdin: function (file, name) {
+        var data = fs.readFileSync('config/badges/' + file + '.csv', 'utf8').split('\n');
+ 
+        var len = data.length;
+        while (len--) {
+            if (!data[len]) continue;
+            var parts = data[len].split(',');
+            if (parts[0].toLowerCase() === name) {
+                return parts[1];
+            }
+        }
+        return 0;
+    },
+ 
+    lstdout: function (file, name, info, callback) {
+        var data = fs.readFileSync('config/badges/' + file + '.csv', 'utf8').split('\n');
+        var match = false;
+ 
+        var len = data.length;
+        while (len--) {
+            if (!data[len]) continue;
+            var parts = data[len].split(',');
+            if (parts[0] === name) {
+                data = data[len];
+                match = true;
+                break;
+            }
+        }
+ 
+        if (match === true) {
+            var re = new RegExp(data, 'g');
+            fs.readFile('config/badges/' + file + '.csv', 'utf8', function (err, data) {
+                if (err) return console.log(err);
+ 
+                var result = data.replace(re, name + ',' + info);
+                fs.writeFile('config/' + file + '.csv', result, 'utf8', function (err) {
+                    if (err) return console.log(err);
+                    typeof callback === 'function' && callback();
+                });
+            });
+        } else {
+            var log = fs.createWriteStream('config/' + file + '.csv', {
+                'flags': 'a'
+            });
+            log.write('\n' + name + ',' + info);
+            typeof callback === 'function' && callback();
+        }
+    },
+ 
+    tstdin: function (file, name) {
+        var data = fs.readFileSync('config/' + file + '.csv', 'utf8').split('\n');
+ 
+        var len = data.length;
+        while (len--) {
+            if (!data[len]) continue;
+            var parts = data[len].split(',');
+            if (parts[0].toLowerCase() === name) {
+                return parts[1];
+            }
+        }
+        return 0;
+    },
+ 
+    tstdout: function (file, name, info, callback) {
+        var data = fs.readFileSync('config/' + file + '.csv', 'utf8').split('\n');
+        var match = false;
+ 
+        var len = data.length;
+        while (len--) {
+            if (!data[len]) continue;
+            var parts = data[len].split(',');
+            if (parts[0] === name) {
+                data = data[len];
+                match = true;
+                break;
+            }
+        }
+ 
+        if (match === true) {
+            var re = new RegExp(data, 'g');
+            fs.readFile('config/' + file + '.csv', 'utf8', function (err, data) {
+                if (err) return console.log(err);
+ 
+                var result = data.replace(re, name + ',' + info);
+                fs.writeFile('config/' + file + '.csv', result, 'utf8', function (err) {
+                    if (err) return console.log(err);
+                    typeof callback === 'function' && callback();
+                });
+            });
+        } else {
+            var log = fs.createWriteStream('config/' + file + '.csv', {
+                'flags': 'a'
+            });
+            log.write('\n' + name + ',' + info);
+            typeof callback === 'function' && callback();
+        }
+    },
+ 
     profile: {
  
         color: '#2ECC40',
  
-        avatarurl: 'http://107.161.19.15:8000',
+        avatarurl: 'http://107.161.19.120:8000',
  
         avatar: function (online, user, img) {
             if (online === true) {
@@ -77,7 +175,7 @@ var core = exports.core = {
                 }
                 return '<img src="http://play.pokemonshowdown.com/sprites/trainers/' + img + '.png" width="80" height="80" align="left">';
             }
-            for (var name in Config.customAvatars) {
+            for (var name in Config.customavatars) {
                 if (user === name) {
                     return '<img src="' + this.avatarurl + '/avatars/' + Config.customAvatars[name] + '" width="80" height="80" align="left">';
                 }
@@ -105,6 +203,52 @@ var core = exports.core = {
                 return '<br>&nbsp;<strong><font color="' + this.color + '">Group:</font></strong>&nbsp;' + 'Regular User';
             }
             return '<br>&nbsp;<strong><font color="' + this.color + '">Group:</font></strong>&nbsp;' + Config.groups[g].name;
+        },
+ 
+        lastSeen: function (online, user) {
+            var lastSeen;
+ 
+            if (online === true) {
+                if (user.connected === true) {
+                    return '<br>&nbsp;<strong><font color="' + this.color + '">Last Seen:</font></strong>&nbsp;<font color="green">Current Online</font>';
+                }
+                lastSeen = Number(Core.stdin('lastSeen', user.userid));
+            } else {
+                lastSeen = Number(Core.stdin('lastSeen', user));
+            }
+ 
+            if (lastSeen === 0) return '<br>&nbsp;<strong><font color="' + this.color + '">Last Seen:</font></strong>&nbsp;Never';
+ 
+            var seconds = Math.floor((Date.now() - lastSeen) * 0.001);
+            var minutes = Math.floor((Date.now() - lastSeen) * 1.6667e-5);
+            var hours = Math.floor((Date.now() - lastSeen) * 2.7778e-7);
+            var days = Math.floor(((Date.now() - lastSeen) * 2.7778e-7) / 24);
+ 
+            var time = days + ' days ago';
+ 
+            if (seconds < 60) {
+                if (seconds === 1) {
+                    time = seconds + ' second ago';
+                } else {
+                    time = seconds + ' seconds ago';
+                }
+            } else if (minutes < 60) {
+                if (minutes === 1) {
+                    time = minutes + ' minute ago';
+                } else {
+                    time = minutes + ' minutes ago';
+                }
+            } else if (hours < 24) {
+                if (hours === 1) {
+                    time = hours + ' hour ago';
+                } else {
+                    time = hours + ' hours ago';
+                }
+            } else if (days === 1) {
+                time = days + ' day ago';
+            }
+ 
+            return '<br>&nbsp;<strong><font color="' + this.color + '">Last Seen:</font></strong>&nbsp;' + time;
         },
  
         about: function (user) {
@@ -206,6 +350,7 @@ var core = exports.core = {
             ['Symbol', 'Buys a custom symbol to go infront of name and puts you at top of userlist. (Temporary until restart, certain symbols are blocked)', 5],
             ['Fix', 'Buys the ability to alter your current custom avatar or trainer card. (don\'t buy if you have neither)', 10],
             ['Poof', 'Buy a poof message to be added into the pool of possible poofs.', 15],
+            ['Who', 'Buys a custom whois bot message for your name.', 25],
             ['Avatar', 'Buys an custom avatar to be applied to your name (You supply. Images larger than 80x80 may not show correctly)', 30],
             ['Trainer', 'Buys a trainer card which shows information through a command.', 50],
             ['Room', 'Buys a chatroom for you to own. (within reason, can be refused)', 100]
@@ -343,7 +488,7 @@ var core = exports.core = {
  
 exports.sysopAccess = function () {
  
-    var systemOperators = ['exampleyt'];
+    var systemOperators = ['kota'];
  
     Users.User.prototype.hasSysopAccess = function () {
         if (systemOperators.indexOf(this.userid) > -1 && this.authenticated) {
