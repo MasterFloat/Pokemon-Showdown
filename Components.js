@@ -1,11 +1,11 @@
+/**
+ * components
  * Created by CreaturePhil - https://github.com/CreaturePhil
  *
- * These are custom commands for the server. This is put in a seperate file
- * from commands.js and config/commands.js to not interfere with them.
- * In addition, it is easier to manage when put in a seperate file.
- * Most of these commands depend on core.js.
- *
- * Command categories: General, Staff, Server Management
+ * This is where essential core infrastructure of
+ * Pokemon Showdown extensions for private servers.
+ * Core contains standard streams, profile infrastructure,
+ * elo rating calculations, and polls infrastructure.
  *
  * @license MIT license
  */
