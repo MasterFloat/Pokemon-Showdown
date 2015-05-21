@@ -126,7 +126,7 @@ Pokémon Showdown's server is distributed under the terms of the [MIT License][9
 Credits
 ------------------------------------------------------------------------
 
-Site Owner
+Server Owner
 -[Austin] - Developement, Design
 
 Owner
