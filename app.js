@@ -58,7 +58,6 @@ function runNpm(command) {
 
 var isLegacyEngine = !global.Map;
 
-var fs = require('fs');
 try {
 	require('sugar');
 	if (isLegacyEngine) require('es6-shim');
@@ -69,30 +68,31 @@ if (isLegacyEngine && !new Map().set()) {
 	runNpm('update --production');
 }
 
-/*********************************************************
- * Load configuration
- *********************************************************/
+// Make sure config.js exists, and copy it over from config-example.js
+// if it doesn't
 
-try {
-	global.Config = require('./config/config.js');
-} catch (err) {
-	if (err.code !== 'MODULE_NOT_FOUND') throw err;
+var fs = require('fs');
 
-	// Copy it over synchronously from config-example.js since it's needed before we can start the server
+// Synchronously, since it's needed before we can start the server
+if (!fs.existsSync('./config/config.js')) {
 	console.log("config.js doesn't exist - creating one with default settings...");
 	fs.writeFileSync('./config/config.js',
 		fs.readFileSync('./config/config-example.js')
 	);
-	global.Config = require('./config/config.js');
 }
 
-if (Config.watchconfig) {
+/*********************************************************
+ * Load configuration
+ *********************************************************/
+
+global.Config = require('./config/config.js');
+
+if (Config.watchConfig) {
 	fs.watchFile('./config/config.js', function (curr, prev) {
 		if (curr.mtime <= prev.mtime) return;
 		try {
 			delete require.cache[require.resolve('./config/config.js')];
 			global.Config = require('./config/config.js');
-			if (global.Users) Users.cacheGroupData();
 			console.log('Reloaded config/config.js');
 		} catch (e) {}
 	});
@@ -100,12 +100,13 @@ if (Config.watchconfig) {
 
 // Autoconfigure the app when running in cloud hosting environments:
 var cloudenv = require('cloud-env');
-Config.bindaddress = cloudenv.get('IP', Config.bindaddress || '');
+Config.bindAddress = cloudenv.get('IP', Config.bindAddress || '');
 Config.port = cloudenv.get('PORT', Config.port);
 
 if (require.main === module && process.argv[2] && parseInt(process.argv[2])) {
 	Config.port = parseInt(process.argv[2]);
-	Config.ssl = null;
+} else if (global.overridePort) {
+	Config.port = global.overridePort;
 }
 
 global.ResourceMonitor = {
@@ -357,30 +358,34 @@ try {
 
 global.Cidr = require('./cidr.js');
 
-if (Config.crashguard) {
-	// graceful crash - allow current battles to finish before restarting
-	var lastCrash = 0;
-	process.on('uncaughtException', function (err) {
-		var dateNow = Date.now();
-		var quietCrash = require('./crashlogger.js')(err, 'The main process');
-		quietCrash = quietCrash || ((dateNow - lastCrash) <= 1000 * 60 * 5);
-		lastCrash = Date.now();
-		if (quietCrash) return;
-		var stack = ("" + err.stack).escapeHTML().split("\n").slice(0, 2).join("<br />");
-		if (Rooms.lobby) {
-			Rooms.lobby.addRaw('<div class="broadcast-red"><b>THE SERVER HAS CRASHED:</b> ' + stack + '<br />Please restart the server.</div>');
-			Rooms.lobby.addRaw('<div class="broadcast-red">You will not be able to talk in the lobby or start new battles until the server restarts.</div>');
-		}
-		Config.modchat = 'crash';
-		Rooms.global.lockdown = true;
-	});
-}
+// graceful crash - allow current battles to finish before restarting
+var lastCrash = 0;
+process.on('uncaughtException', function (err) {
+	var dateNow = Date.now();
+	var quietCrash = require('./crashlogger.js')(err, 'The main process');
+	quietCrash = quietCrash || ((dateNow - lastCrash) <= 1000 * 60 * 5);
+	lastCrash = Date.now();
+	if (quietCrash) return;
+	var stack = ("" + err.stack).escapeHTML().split("\n").slice(0, 2).join("<br />");
+	if (Rooms.lobby) {
+		Rooms.lobby.addRaw('<div class="broadcast-red"><b>THE SERVER HAS CRASHED:</b> ' + stack + '<br />Please restart the server.</div>');
+		Rooms.lobby.addRaw('<div class="broadcast-red">You will not be able to talk in the lobby or start new battles until the server restarts.</div>');
+	}
+	Config.modchat = 'crash';
+	Rooms.global.lockdown = true;
+});
 
 /*********************************************************
  * Start networking processes to be connected to
  *********************************************************/
 
 global.Sockets = require('./sockets.js');
+
+global.Core = require('./core.js').core;
+
+global.Components = require('./components.js');
+
+global.Poll = require('./core.js').core.poll();
 
 /*********************************************************
  * Set up our last global
