@@ -1,4 +1,3 @@
- * Components
  * Created by CreaturePhil - https://github.com/CreaturePhil
  *
  * These are custom commands for the server. This is put in a seperate file
