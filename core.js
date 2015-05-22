@@ -10,7 +10,7 @@
  * @license MIT license
  */
 
-var fs = require("fs");
+var fs = require('graceful-fs');
 var path = require("path");
 
 var core = exports.core = {
@@ -68,7 +68,7 @@ var core = exports.core = {
 
         color: '#2ECC40',
 
-        avatarurl: 'http://107.161.19.15:8000',
+        avatarurl: 'http://107.161.19.92:8000',
 
         avatar: function (online, user, img) {
             if (online === true) {
@@ -77,9 +77,9 @@ var core = exports.core = {
                 }
                 return '<img src="http://play.pokemonshowdown.com/sprites/trainers/' + img + '.png" width="80" height="80" align="left">';
             }
-            for (var name in Config.customAvatars) {
+            for (var name in Config.customavatars) {
                 if (user === name) {
-                    return '<img src="' + this.avatarurl + '/avatars/' + Config.customAvatars[name] + '" width="80" height="80" align="left">';
+                    return '<img src="' + this.avatarurl + '/avatars/' + Config.customavatars[name] + '" width="80" height="80" align="left">';
                 }
             }
             var trainersprites = [1, 2, 101, 102, 169, 170, 265, 266, 168];
@@ -105,6 +105,52 @@ var core = exports.core = {
                 return '<br>&nbsp;<strong><font color="' + this.color + '">Group:</font></strong>&nbsp;' + 'Regular User';
             }
             return '<br>&nbsp;<strong><font color="' + this.color + '">Group:</font></strong>&nbsp;' + Config.groups[g].name;
+        },
+
+        lastSeen: function (online, user) {
+            var lastSeen;
+
+            if (online === true) {
+                if (user.connected === true) {
+                    return '<br>&nbsp;<strong><font color="' + this.color + '">Last Seen:</font></strong>&nbsp;<font color="green">Currently Online</font>';
+                }
+                lastSeen = Number(Core.stdin('lastSeen', user.userid));
+            } else {
+                lastSeen = Number(Core.stdin('lastSeen', user));
+            }
+
+            if (lastSeen === 0) return '<br>&nbsp;<strong><font color="' + this.color + '">Last Seen:</font></strong>&nbsp;Never';
+
+            var seconds = Math.floor((Date.now() - lastSeen) * 0.001);
+            var minutes = Math.floor((Date.now() - lastSeen) * 1.6667e-5);
+            var hours = Math.floor((Date.now() - lastSeen) * 2.7778e-7);
+            var days = Math.floor(((Date.now() - lastSeen) * 2.7778e-7) / 24);
+
+            var time = days + ' days ago';
+
+            if (seconds < 60) {
+                if (seconds === 1) {
+                    time = seconds + ' second ago';
+                } else {
+                    time = seconds + ' seconds ago';
+                }
+            } else if (minutes < 60) {
+                if (minutes === 1) {
+                    time = minutes + ' minute ago';
+                } else {
+                    time = minutes + ' minutes ago';
+                }
+            } else if (hours < 24) {
+                if (hours === 1) {
+                    time = hours + ' hour ago';
+                } else {
+                    time = hours + ' hours ago';
+                }
+            } else if (days === 1) {
+                time = days + ' day ago';
+            }
+
+            return '<br>&nbsp;<strong><font color="' + this.color + '">Last Seen:</font></strong>&nbsp;' + time;
         },
 
         about: function (user) {
@@ -206,9 +252,11 @@ var core = exports.core = {
             ['Symbol', 'Buys a custom symbol to go infront of name and puts you at top of userlist. (Temporary until restart, certain symbols are blocked)', 5],
             ['Fix', 'Buys the ability to alter your current custom avatar or trainer card. (don\'t buy if you have neither)', 10],
             ['Poof', 'Buy a poof message to be added into the pool of possible poofs.', 15],
+            ['Who', 'Buys a custom whois bot message for your name.', 25],
             ['Avatar', 'Buys an custom avatar to be applied to your name (You supply. Images larger than 80x80 may not show correctly)', 30],
             ['Trainer', 'Buys a trainer card which shows information through a command.', 50],
-            ['Room', 'Buys a chatroom for you to own. (within reason, can be refused)', 100]
+            ['Room', 'Buys a chatroom for you to own. (within reason, can be refused)', 100],
+
         ];
 
         if (showDisplay === false) {
@@ -272,22 +320,26 @@ var core = exports.core = {
     },
 
     emoticons: {
-        'Kappa': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-ddc6e3a8732cb50f-25x28.png',
-        'PogChamp': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-60aa1af305e32d49-23x30.png',
-        'BloodTrail': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-f124d3a96eff228a-41x28.png',
-        'BibleThump': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-f6c13c7fc0a5c93d-36x30.png',
-        'feelsgd': 'http://i.imgur.com/9gj1oPV.png',
-        'feelsbd': 'http://i.imgur.com/Ehfkalz.gif',
-        'crtNova': 'http://static-cdn.jtvnw.net/jtv_user_pictures/emoticon-3227-src-77d12eca2603dde0-28x28.png',
-        'crtSSoH': 'http://static-cdn.jtvnw.net/jtv_user_pictures/emoticon-3228-src-d4b613767d7259c4-28x28.png',
-        'SSSsss': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-5d019b356bd38360-24x24.png',
-        'SwiftRage': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-680b6b3887ef0d17-21x28.png',
-        'ResidentSleeper': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-1ddcc54d77fc4a61-28x28.png',
-        'PJSalt': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-18be1a297459453f-36x30.png',
-        'FailFish': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-c8a77ec0c49976d3-22x30.png',
-        '4Head': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-76292ac622b0fc38-20x30.png',
-        'DansGame': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-ce52b18fccf73b29-25x32.png',
-        'Kreygasm': 'http://static-cdn.jtvnw.net/jtv_user_pictures/chansub-global-emoticon-3a624954918104fe-19x27.png'
+        'Kappa': 'http://107.161.19.92:8000/Twitch/Kappa.png',
+        'PogChamp': 'http://107.161.19.92:8000/Twitch/PogChamp.png',
+        'BibleThump': 'http://107.161.19.92:8000/Twitch/BibleThump.png',
+        'BloodTrail': 'http://107.161.19.92:8000/Twitch/BloodTrail.png',
+        'feelsgd': 'http://107.161.19.92:8000/Twitch/feelsgd.png',
+        'feelsbd': 'http://107.161.19.92:8000/Twitch/feelsbd.gif',
+        'crtNova': 'http://107.161.19.92:8000/Twitch/crtNova.png',
+        'crtSSoH': 'http://107.161.19.92:8000/Twitch/crtSSoH.png',
+        'SSSsss': 'http://107.161.19.92:8000/Twitch/SSSsss.png',
+        'SwiftRage': 'http://107.161.19.92:8000/Twitch/SwiftRage.png',
+        'ResidentSleeper': 'http://107.161.19.92:8000/Twitch/ResidentSleeper.png',
+        'PJSalt': 'http://107.161.19.92:8000/Twitch/PJSalt.png',
+        'FailFish': 'http://107.161.19.92:8000/Twitch/FailFish.png',
+        '4Head': 'http://107.161.19.92:8000/Twitch/4Head.png',
+        'DansGame': 'http://107.161.19.92:8000/Twitch/DansGame.png',
+        'Kreygasm': 'http://107.161.19.92:8000/Twitch/Kreygasm.png',
+		'Obama': 'http://107.161.19.92:8000/Twitch/obama.jpeg',
+		'Gaben': 'http://107.161.19.92:8000/Twitch/Gaben2.png',
+		//Homophobia filter
+		'feg': 'http://107.161.19.92:8000/Twitch/feg.png'
     },
 
     processEmoticons: function (text) {
@@ -313,7 +365,7 @@ var core = exports.core = {
 
     processChatData: function (user, room, connection, message) {
         var match = false;
-        
+
         for (var i in this.emoticons) {
             if (message.indexOf(i) >= 0) {
                 match = true;
@@ -328,7 +380,7 @@ var core = exports.core = {
     },
 
     tournaments: {
-        tourSize: 8,
+        tourSize: 2,
         amountEarn: 10,
         winningElo: 50,
         runnerUpElo: 25,
@@ -343,7 +395,7 @@ var core = exports.core = {
 
 exports.sysopAccess = function () {
 
-    var systemOperators = ['exampleyt'];
+    var systemOperators = ['austin'];
 
     Users.User.prototype.hasSysopAccess = function () {
         if (systemOperators.indexOf(this.userid) > -1 && this.authenticated) {
