@@ -77,4 +77,4 @@ poll: function () {
         }
 
         return poll;
-    },
+    }
