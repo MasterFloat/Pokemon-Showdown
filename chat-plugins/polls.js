@@ -72,7 +72,8 @@ exports.commands = {
         }
         data.sort(function (a, b) {
             return a[1] - b[1]
-        });
+        );
+        }
 
         var results = '';
         var len = data.length;
