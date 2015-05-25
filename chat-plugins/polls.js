@@ -56,9 +56,9 @@ exports.commands = {
         for (var i in options) {
             data.push([i, options[i]]);
         }
-        data.sort(function (a, b) {
+        data.sort(function (a, b)) {
             return a[1] - b[1]
-        });
+        };
 
         var results = '';
         var len = data.length;
