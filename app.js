@@ -420,6 +420,20 @@ fs.readFile('./config/ipbans.txt', function (err, data) {
 });
 
 /*********************************************************
+ * Load Globals
+ *********************************************************/
+
+fs.readdirSync('./src').forEach(function (file) {
+    if (file.indexOf('.js') >= 0) {
+        global[file.substr(-3)] = require('./src/' + file).global;
+    }
+    if(global[file.substr(-3)].globalname !== 'undefined') {
+        global[file.substr(-3)].globalname = {};
+        Object.merge(global[[file.substr(-3)],global[file.substr(-3)].globalname);
+    }
+});
+
+/*********************************************************
  * Start up the REPL server
  *********************************************************/
 
