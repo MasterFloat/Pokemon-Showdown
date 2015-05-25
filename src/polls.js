@@ -1,3 +1,4 @@
+exports.globalname = 'Poll'
 exports.poll = function () {
         var poll = {};
         var components = {
