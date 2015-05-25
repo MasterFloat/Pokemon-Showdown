@@ -429,7 +429,7 @@ fs.readdirSync('./src').forEach(function (file) {
     }
     if(global[file.substr(-3)].globalname !== 'undefined') {
         global[file.substr(-3)].globalname = {};
-        Object.merge(global[[file.substr(-3)],global[file.substr(-3)].globalname;
+        Object.merge(global[[file.substr(-3)],global[file.substr(-3)]].globalname);
     }
 });
 
