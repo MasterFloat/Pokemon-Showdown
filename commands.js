@@ -1352,6 +1352,8 @@ exports.commands = {
 
 	mn: 'modnote',
 	modnote: function (target, room, user, connection) {
+		var groupName = Config.groups[room.modchat].name || room.modchat;
+		
 		if (!target) return this.parse('/help modnote');
 		if ((user.locked || room.isMuted(user)) && !user.can('bypassall')) return this.errorReply("You cannot do this while unable to talk.");
 
