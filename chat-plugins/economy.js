@@ -349,7 +349,7 @@ exports.commands = {
 
 	shop: function (target, room, user) {
 		if (!this.runBroadcast()) return;
-		this.sendReplyBox('<center><h4><b><u>' + shopTitle + '</u></b></h4><table style="width: 100%; border-collapse: collapse;"><tr><th style="background: #2980B9; border: 1px solid #1d6391; border-bottom-width: 10px; color: #FFF; padding: 10px; font-size: 13pt;">Item</th><th style="background: #C0392B; border: 1px solid #a12f23; border-bottom-width: 10px; color: #FFF; padding: 10px; font-size: 13pt;">Description</th><th style="background: #F39C12; border: 1px solid #cd8109; border-bottom-width: 10px; color: #FFF; padding: 10px; font-size: 13pt;">Price</th></tr>' +
+		this.sendReplyBox('<center><h4><b><u>' + shopTitle + '</u></b></h4><div style="max-height: 310px; overflow-y: scroll;"><table style="width: 100%; border-collapse: collapse;"><tr><th style="background: #2980B9; border: 1px solid #1d6391; border-bottom-width: 10px; color: #FFF; padding: 10px; font-size: 13pt;">Item</th><th style="background: #C0392B; border: 1px solid #a12f23; border-bottom-width: 10px; color: #FFF; padding: 10px; font-size: 13pt;">Description</th><th style="background: #F39C12; border: 1px solid #cd8109; border-bottom-width: 10px; color: #FFF; padding: 10px; font-size: 13pt;">Price</th></tr>' +
 			'<tr class="shop-tr"><td class="shop-td"><button name="send" value="/buy symbol">Custom Symbol</button></td><td class="shop-td des">Buys a custom symbol to go in front of your name. (Temporary until restart)</td><td class="shop-td pri">' + prices['symbol'] + '</td></tr>' +
 			'<tr class="shop-tr"><td class="shop-td"><button name="send" value="/buy fix">Fix</button></td><td class="shop-td des">Buys the ability to alter your current custom avatar or infobox (don\'t buy if you have neither)!</td><td class="shop-td pri">' + prices['fix'] + '</td></tr>' +
 			'<tr class="shop-tr"><td class="shop-td"><button name="send" value="/buy declare">Declare</button></td><td class="shop-td des">You get the ability to have a message declared in the lobby. This can be used for league advertisement (not server)</td><td class="shop-td pri">' + prices['declare'] + '</td></tr>' +
@@ -362,7 +362,7 @@ exports.commands = {
 			'<tr class="shop-tr"><td class="shop-td"><button name="send" value="/buy room">Room</button></td><td class="shop-td des">Buys a chatroom for you to own.</td><td class="shop-td pri">' + prices['room'] + '</td></tr>' +
 			'<tr class="shop-tr"><td class="shop-td"><button name="send" value="/buy icon">Icon</button></td><td class="shop-td des">Buys an icon that displays beside your name on the userlist. Size must be 32x32.</td><td class="shop-td pri">' + prices['icon'] + '</td></tr>' +
 			'<tr class="shop-tr"><td class="shop-td"><button name="send" value="/buy color">Color</button></td><td class="shop-td des">Buys a custom color change for your name. Changes the color of your name on the userlist and in the chat.</td><td class="shop-td pri">' + prices['color'] + '</td></tr>' +
-			'</table><br />To buy an item from the shop, use /buy [item].<br />All sales final, no refunds will be provided.</center>'
+			'</table></div><br />To buy an item from the shop, use /buy [item].<br />All sales final, no refunds will be provided.</center>'
 		);
 	},
 
