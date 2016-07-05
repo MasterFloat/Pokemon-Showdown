@@ -63,30 +63,28 @@ class Poll {
 
 	generateVotes() {
 		let count = 0;
-		let output = '<div class="infobox"><p style="margin: 2px 0 5px 0"><span style="border:1px solid #6A6;color:#484;border-radius:4px;padding:0 3px"><i class="fa fa-bar-chart"></i> Poll</span> <strong style="font-size:11pt">' + this.getQuestionMarkup() +
-			'</strong></p><table style="text-align: center; background-color: #FFC775; border: #FF560E, solid, 1px ; color: white; border-collapse: collapse; padding: 5px;">';
-		output += '<br><p align="left">[Total Votes: ' + this.totalVotes + '] <i>(Started by ' + this.startedUser + ' ' + moment(this.startTime).fromNow() + '.)</i></p>';
+		let output = '<div style="max-height: 310px; overflow-y: auto; border-radius: 20px;"><table cellspacing="0" style="background: rgba(245, 245, 245, 0.7); width: 100%; border: 1px solid #777; border-radius: 20px;"><tr><td colspan="4" class="poll-td" style="background: rgba(202, 233, 229, 0.8); background: linear-gradient(rgba(202, 233, 229, 0.8), rgba(185, 213, 210, 0.8)); border-bottom: 1px solid #777; border-top-right-radius: 20px; border-top-left-radius: 20px; text-shadow: 0px 0px 2px #EEE; box-shadow: 1px 1px 1px rgba(255, 255, 255, 0.8) inset, 0px 0px 1px rgba(0, 0, 0, 0.5) inset;"><span style="border: 1px solid #484; color: #3B763B; border-radius: 4px; padding: 0 3px;"><i class="fa fa-bar-chart"></i> Poll</span> <strong style="font-size: 11pt; color: #000;">' + this.getQuestionMarkup() +
+			'</strong><br /><span style="font-style: italic; font-size: 9pt; color: #333;">[Total Votes: ' + this.totalVotes + '] <i>(Started by ' + this.startedUser + ' ' + moment(this.startTime).fromNow() + '.)</span></td></tr>';
 		this.options.forEach((option, number) => {
 			count++;
 			if (count === 1) output += "<tr>";
-			output += '<td style="border: #FF560E, solid, 1px ; color: white; padding: 3px;"><button style="width: 100%; background-color: #FF560E; border:none; color: #FFC775; font-size: 14px;" value="/poll vote ' + number + '" name="send" title="Vote for ' + number + '. ' + Tools.escapeHTML(option.name) + '"><strong>' + Tools.escapeHTML(option.name) + '</strong></button></td>';
+			output += '<td class="poll-td"><button style="border-radius: 20px; transition-duration: 0.5s; transition-timing-function: linear; font-style: italic;" value="/poll vote ' + number + '" name="send" title="Vote for ' + number + '. ' + Tools.escapeHTML(option.name) + '">' + Tools.escapeHTML(option.name) + '</button></td>';
 			if (count >= 4) {
 				output += "</tr>";
 				count = 0;
 			}
 		});
-		output += '</table><div style="margin-top: 7px; padding-left: 12px"><button value="/poll results" name="send" title="View results - you will not be able to vote after viewing results"><small>(View results)</small></button></div>';
-		output += '</div>';
+		output += '</table></div><br /><div style="background: rgba(245, 245, 245, 0.7); width: 100%; padding: 8px 0px; text-align: center; border: 1px solid #777; border-radius: 20px;"><button value="/poll results" name="send" title="View results - you will not be able to vote after viewing results" class="poll-results-btn" style="border-radius: 20px; transition-duration: 0.5s; transition-timing-function: linear;"><small>(View results)</small></button></div>';
 
 		return output;
 	}
 
 	generateResults(ended, option) {
-		let icon = '<span style="border:1px solid #' + (ended ? '777;color:#555' : '6A6;color:#484') + ';border-radius:4px;padding:0 3px"><i class="fa fa-bar-chart"></i> ' + (ended ? "Poll ended" : "Poll") + '</span>';
-		let totalVotes = '<p align="left">[Total Votes: ' + this.totalVotes + '] <i>(Started by ' + this.startedUser + ' ' + moment(this.startTime).fromNow() + '.)</i></p>';
-		let output = '<div class="infobox"><p style="margin: 2px 0 5px 0">' + icon + ' <strong style="font-size:11pt">' + this.getQuestionMarkup() + '</strong></p>';
+		let icon = '<span style="border: 1px solid #' + (ended ? '777; color: #555' : '484; color: #3B763B') + '; border-radius: 4px; padding: 0 3px;"><i class="fa fa-bar-chart"></i> ' + (ended ? "Poll ended" : "Poll") + '</span>';
+		let totalVotes = '<br /><span style="font-style: italic; font-size: 9pt; color: #333;">[Total Votes: ' + this.totalVotes + '] (Started by ' + this.startedUser + ' ' + moment(this.startTime).fromNow() + '.)</span></div>';
+		let output = '<div style="background: rgba(245, 245, 245, 0.7); width: 100%; border: 1px solid #777; border-radius: 20px;"><div class="poll-td" style="background: rgba(202, 233, 229, 0.8); background: linear-gradient(rgba(202, 233, 229, 0.8), rgba(185, 213, 210, 0.8)); border-bottom: 1px solid #777; border-top-right-radius: 20px; border-top-left-radius: 20px; text-shadow: 0px 0px 2px #EEE; box-shadow: 1px 1px 1px rgba(255, 255, 255, 0.8) inset, 0px 0px 1px rgba(0, 0, 0, 0.5) inset;">' + icon + ' <strong style="font-size: 11pt; color: #000;">' + this.getQuestionMarkup() + '</strong>';
 		output += totalVotes;
-		output += "<br /><font color=grey><small>(Options with 0 votes are not shown)</small></font>";
+		output += '<div style="padding: 8px 15px;"><font color="grey"><small>(Options with 0 votes are not shown)</small></font>';
 		let iter = this.options.entries();
 
 		let i = iter.next();
@@ -95,7 +93,7 @@ class Poll {
 		while (!i.done) {
 			if (i.value[1].votes && i.value[1].votes !== 0) {
 				let percentage = Math.round((i.value[1].votes * 100) / (this.totalVotes || 1));
-				output += '<div style="margin-top: 3px"><strong>' + (i.value[0] === option ? '<em>' : '') + Tools.escapeHTML(i.value[1].name) + (i.value[0] === option ? '</em>' : '') + '</strong> <small>(' + i.value[1].votes + ' vote' + (i.value[1].votes === 1 ? '' : 's') + ')</small><br /><span style="font-size:7pt;background:' + colors[c % 3] + ';padding-right:' + (percentage * 3) + 'px"></span><small>&nbsp;' + percentage + '%</small></div>';
+				output += '<div style="margin-top: 3px;"><strong>' + (i.value[0] === option ? '<em>' : '') + Tools.escapeHTML(i.value[1].name) + (i.value[0] === option ? '</em>' : '') + '</strong> <small>(' + i.value[1].votes + ' vote' + (i.value[1].votes === 1 ? '' : 's') + ')</small><br /><span style="font-size: 7pt; background: ' + colors[c % 3] + '; padding-right: ' + (percentage * 3) + 'px; border-radius: 20px;"></span><small>&nbsp;' + percentage + '%</small></div>';
 			}
 			i = iter.next();
 			c++;
