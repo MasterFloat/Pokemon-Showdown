@@ -68,7 +68,7 @@ class Poll {
 		this.options.forEach((option, number) => {
 			count++;
 			if (count === 1) output += "<tr>";
-			output += '<td class="poll-td"><button style="border-radius: 20px; transition-duration: 0.5s; transition-timing-function: linear; font-style: italic;" value="/poll vote ' + number + '" name="send" title="Vote for ' + number + '. ' + Tools.escapeHTML(option.name) + '">' + Tools.escapeHTML(option.name) + '</button></td>';
+			output += '<td class="poll-td"><button style="border-radius: 20px; transition-duration: 0.5s; transition-timing-function: linear;" value="/poll vote ' + number + '" name="send" title="Vote for ' + number + '. ' + Tools.escapeHTML(option.name) + '">' + Tools.escapeHTML(option.name) + '</button></td>';
 			if (count >= 4) {
 				output += "</tr>";
 				count = 0;
